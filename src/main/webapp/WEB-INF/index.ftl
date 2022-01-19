@@ -1,6 +1,7 @@
 <html>
 <head><title>Hello World</title>
- 
+  <link rel="stylesheet" href="/res?template.css">
+
 <body>
   <form name="user" action="hello" method="post">
     Firstname: <input type="text" name="firstname" /> <br/>

@@ -62,10 +62,63 @@
 		<servlet-name>carSharer_servlet</servlet-name>
 		<servlet-class>de.unidue.inf.is.CarSharerServlet</servlet-class>
 	</servlet>
-
 	<servlet-mapping>
 		<servlet-name>carSharer_servlet</servlet-name>
 		<url-pattern>/carSharer</url-pattern>
+	</servlet-mapping>
+
+	<servlet>
+		<servlet-name>res_servlet</servlet-name>
+		<servlet-class>de.unidue.inf.is.ResourceServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>res_servlet</servlet-name>
+		<url-pattern>/res</url-pattern>
+	</servlet-mapping>
+
+	<servlet>
+		<servlet-name>viewMain_servlet</servlet-name>
+		<servlet-class>de.unidue.inf.is.viewMainServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>viewMain_servlet</servlet-name>
+		<url-pattern>/view_main</url-pattern>
+	</servlet-mapping>
+	
+	<servlet>
+		<servlet-name>newDrive_servlet</servlet-name>
+		<servlet-class>de.unidue.inf.is.NewDriveServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>newDrive_servlet</servlet-name>
+		<url-pattern>/new_drive</url-pattern>
+	</servlet-mapping>
+
+	<servlet>
+		<servlet-name>newRating_servlet</servlet-name>
+		<servlet-class>de.unidue.inf.is.NewRatingServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>newRating_servlet</servlet-name>
+		<url-pattern>/new_rating</url-pattern>
+	</servlet-mapping>
+
+	<servlet>
+		<servlet-name>viewDrive_servlet</servlet-name>
+		<servlet-class>de.unidue.inf.is.ViewDriveServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>viewDrive_servlet</servlet-name>
+		<url-pattern>/view_drive</url-pattern>
+	</servlet-mapping>
+
+	<servlet>
+		<servlet-name>viewSearch_servlet</servlet-name>
+		<servlet-class>de.unidue.inf.is.ViewSearchServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>viewSearch_servlet</servlet-name>
+		<url-pattern>/view_search</url-pattern>
 	</servlet-mapping>
 
 	<!-- Prevent the visiting of MVC Views from outside the servlet container. 

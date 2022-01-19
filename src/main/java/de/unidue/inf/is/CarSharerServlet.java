@@ -26,7 +26,7 @@ public final class CarSharerServlet extends HttpServlet {
         boolean databaseExists = DBUtil.checkDatabaseExistsExternal();
 
         if (databaseExists) {
-            request.setAttribute("db2exists", "vorhanden! Supi!");
+            request.setAttribute("db2exists", "vorhanden! Supi! Hallo Finn");
         }
         else {
             request.setAttribute("db2exists", "nicht vorhanden :-(");
