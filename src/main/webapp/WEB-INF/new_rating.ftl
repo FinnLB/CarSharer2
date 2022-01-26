@@ -10,9 +10,30 @@
 		</div>
 	   
 		<div id="site">
-		<p>
-			Die Datenbank sharer ist ${db2exists}
-		</p>
+			<h3>Bewertung für ${fahrer}:</h3>
+			<form action="new_rating" method="post">
+				<input type="hidden" name="fid" value="${fid}">
+				<input type="hidden" name="nid" value="${nid}">
+				<table>
+					<tr>
+						<td><label>Textnachricht:</label></td>
+						<td><input type="text" name="msg"></td>
+					</tr>
+					<tr>
+						<td><label>Bewertung:</label></td>
+						<td>
+							<input type="radio" name="rating" value="1">1
+							<input type="radio" name="rating" value="2">2
+							<input type="radio" name="rating" value="3">3
+							<input type="radio" name="rating" value="4">4
+							<input type="radio" name="rating" value="5">5
+						</td>
+					</tr>
+					<tr>
+						<td><input type="submit" value="Bewertung abgeben"></td>
+					</tr>
+				</table>
+			</form>
 		</div>
 	</div>
 </body>

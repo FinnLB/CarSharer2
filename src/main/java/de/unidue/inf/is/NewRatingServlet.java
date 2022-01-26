@@ -1,22 +1,79 @@
 package de.unidue.inf.is;
 
 
+import de.unidue.inf.is.utils.DBUtil;
+
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.sql.*;
 
 public final class NewRatingServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        int fid = Integer.parseInt(request.getParameter("fid"), 10);
+        String tmp = request.getParameter("nid");
+        int nid = 1;
+        if (tmp != null){
+            nid = Integer.parseInt(tmp, 10);
+        }
+        request.setAttribute("fid", fid);
+        request.setAttribute("nid", nid);
+        try {
+            Connection con = DBUtil.getExternalConnection();
+            PreparedStatement stmt = con.prepareStatement("SELECT * FROM dbp167.SEARCH WHERE FID = ?");
+
+            stmt.setInt(1, fid);
+
+            ResultSet query = stmt.executeQuery();
+            while (query.next()) {
+                int id = query.getInt("fid");
+                String startort = query.getString("startort");
+                String zielort = query.getString("zielort");
+                Date fahrtdatumzeit = query.getDate("fahrtdatumzeit");
+                String status = query.getString("status");
+                String anbieter = query.getString("anbieter");
+                String transportmittel = query.getString("transportmittel");
+                request.setAttribute("fahrer", anbieter);
+            }
+        } catch (SQLException throwable) {
+            throwable.printStackTrace();
+        }
+
         request.getRequestDispatcher("new_rating.ftl").forward(request, response);
     }
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        int rating = Integer.parseInt(request.getParameter("rating"), 10);
+        int fid = Integer.parseInt(request.getParameter("fid"), 10);
+        int nid = Integer.parseInt(request.getParameter("nid"), 10);
+        String msg = request.getParameter("msg");
 
+        try {
+            Connection con = DBUtil.getExternalConnection();
+            PreparedStatement stmt1 = con.prepareStatement("INSERT INTO BEWERTUNG (TEXTNACHRICHT, RATING) VALUES (?, ?);SELECT IDENTITY_VAL_LOCAL() AS VAL FROM SYSIBM.SYSDUMMY1");
+
+            stmt1.setString(1, msg);
+            stmt1.setInt(2, rating);
+
+            int beid = stmt1.executeUpdate();
+
+            PreparedStatement stmt2 = con.prepareStatement("INSERT INTO SCHREIBEN (BENUTZER, FAHRT, BEWERTUNG) VALUES (?, ?, ?)");
+
+            stmt2.setInt(1, nid);
+            stmt2.setInt(2, fid);
+            stmt2.setInt(3, beid);
+
+            stmt2.executeUpdate();
+
+        } catch (SQLException throwable) {
+            throwable.printStackTrace();
+        }
+        response.sendRedirect("view_drive?kunden_id=" + nid + "&fahrt_id=" + fid);
     }
 
 }
