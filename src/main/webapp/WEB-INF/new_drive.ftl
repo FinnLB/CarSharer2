@@ -10,7 +10,9 @@
 		</div>
 	   
 		<div id="site">
+			<form method="get" action="view_main"><input type="submit" value="Go to main"></form><br>
 		<form method="post" action="new_drive">
+			<input type="hidden" value="${kunden_id}" name="kunden_id">
 			<label>
 				Von:
 				<input type="text" name="von">
@@ -28,26 +30,20 @@
 				<input type="text" name="kosten">
 			</label><br>
 			Transportmittel:
-			<label>
-				<input type="radio" value="Auto" name="transportmittel">
-				Auto
-			</label>
-			<label>
-				<input type="radio" value="Bus" name="transportmittel">
-				Bus
-			</label>
-			<label>
-				<input type="radio" value="Kleintransporter" name="transportmittel">
-				Kleintransporter
-			</label>
+			<#list vehicles as vehicle>
+				<label>
+					<input type="radio" value="${vehicle.tid}" name="transportmittel">
+					${vehicle.name}
+				</label>
+			</#list>
 			<br>
 			<label>
 				Fahrtdatum:
-				<input type="datetime-local" name="fahrtdatum"> - <input type="time" name="fahrtuhrzeit">
+				<input type="datetime-local" name="fahrtdatumzeit">
 			</label><br>
 			<label>
 				Beschreibung:
-				<textarea></textarea>
+				<textarea name="beschreibung"></textarea>
 			</label><br>
 			<input type="submit" value="Fahrt erstellen">
 		</form>

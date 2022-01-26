@@ -6,6 +6,7 @@ import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.Properties;
 
 import com.ibm.db2.jcc.DB2Driver;
@@ -69,6 +70,9 @@ public final class DBUtil {
 
         final String url = "jdbc:db2://" + rechnername + ".is.inf.uni-due.de:50" + gruppennummer + "/" + database + ":currentSchema=" + user + ";";
         Connection connection = DriverManager.getConnection(url, user, pass);
+        Statement statement = connection.createStatement();
+        statement.execute("set schema DBP167");
+        statement.close();
         return connection;
     }
 

@@ -10,6 +10,7 @@
 		<div id="header">
 			<h1>Fahrt ansehen</h1>
 		</div>
+		<form method="get" action="view_main"><input type="submit" value="Go to main"></form><br>
 		<div id="subheader">
 		<h1> Informationen </h1>
 		</div>

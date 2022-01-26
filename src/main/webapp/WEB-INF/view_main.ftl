@@ -1,6 +1,16 @@
 <html xmlns="http://www.w3.org/1999/html">
 <head><title>CarSharer</title>
 	<link rel="stylesheet" href="/res?template.css">
+	<link rel="stylesheet" href="/res?view_drive.css">
+	<style>
+		.border {
+			border: 5px solid black;
+			padding-bottom: 2px;
+			padding-left: 5px;
+			padding-top: 2px;
+			margin: 20px;
+		}
+	</style>
 </head>
 
 <body>
