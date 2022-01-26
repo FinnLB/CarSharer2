@@ -43,7 +43,7 @@
 			<br>
 			<label>
 				Fahrtdatum:
-				<input type="date"> - <input type="time">
+				<input type="datetime-local" name="fahrtdatum"> - <input type="time" name="fahrtuhrzeit">
 			</label><br>
 			<label>
 				Beschreibung:

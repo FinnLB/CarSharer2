@@ -17,10 +17,12 @@
 					Von:
 					<input type="text">
 				</label>
+				<br>
 				<label>
-					Bis:
+					Nach:
 					<input type="text">
 				</label>
+				<br>
 				<label>
 					Fahrtdatum:
 					<input type="date">

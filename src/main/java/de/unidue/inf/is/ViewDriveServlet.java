@@ -127,6 +127,9 @@ public final class ViewDriveServlet extends HttpServlet {
             stmt.setInt(1, kunden_id);
             stmt.setInt(2, fahrt_id);
             stmt.setInt(3, resplaetze);
+            stmt.executeUpdate();
+            stmt.close();
+            connection.close();
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         }

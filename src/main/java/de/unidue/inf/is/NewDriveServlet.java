@@ -1,10 +1,14 @@
 package de.unidue.inf.is;
 
+import de.unidue.inf.is.utils.DBUtil;
+
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.sql.*;
+import java.time.Instant;
 
 public final class NewDriveServlet extends HttpServlet {
 
@@ -15,6 +19,8 @@ public final class NewDriveServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        System.out.println("Fahrtdatum = " + request.getParameter("fahrtdatum"));
+        System.out.println("Fahrtuhrzeit = " + request.getParameter("fahrtuhrzeit"));
         String start = request.getParameter("von");
         String ziel = request.getParameter("bis");
         int capacity = 0, costs = 0;

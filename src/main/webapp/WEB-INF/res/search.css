@@ -4,3 +4,7 @@
     font-size: 150%;
     padding-left: 1em;
 }
+
+input {
+    padding-left: 1%;
+}
