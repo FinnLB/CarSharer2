@@ -16,81 +16,89 @@ public final class ViewDriveServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         //TODO request should contain fahrt_id and kunden_id
         String sid = request.getParameter("fahrt_id");
-        String kid = request.getParameter("kunden_id");
+        String kid = request.getParameter("kunden_id");//TODO diese Loesung koennte Sicherheitsluecken enthalten.
         int fahrt_id = 4;
         int kunden_id = 1;
         try{
             fahrt_id = Integer.parseInt(sid);
         }catch (Exception e){
-            System.out.println("ViewDirveServlet: cant parse fahrt_id "+sid+" to int");
+            System.out.println("ViewDriveServlet: cant parse fahrt_id "+sid+" to int");
         }
         try{
             kunden_id = Integer.parseInt(kid);
         }catch (Exception e){
-            System.out.println("ViewDirveServlet: cant parse kunden_id "+kid+" to int");
+            System.out.println("ViewDriveServlet: cant parse kunden_id "+kid+" to int");
         }
         Connection connection = null;
         try{
             connection = DBUtil.getExternalConnection();
             // get general information
-            String sql = "SELECT t.name AS anbieter, t.fid, t.startort, t.zielort, t.fahrtdatumzeit, t.maxplaetze, t.status, t.beschreibung FROM " +
-                    "    (" +
-                    "        SELECT * FROM ( " +
-                    "            (SELECT * FROM DBP167.fahrt fi WHERE fi.fid = ?) f " +
-                    "            JOIN " +
-                    "            (SELECT * FROM DBP167.benutzer) b " +
-                    "            ON (b.bid = f.anbieter) " +
-                    "        ) " +
-                    "    ) t";
-            PreparedStatement stmt = connection.prepareStatement(sql);
-            stmt.setInt(1, fahrt_id);
+            PreparedStatement stmt_generalInf = connection.prepareStatement(
+                    "SELECT t.name AS anbieter, t.fid, t.startort, t.zielort, t.fahrtdatumzeit, t.maxplaetze, t.status, t.beschreibung FROM (SELECT * FROM ((SELECT * FROM DBP167.fahrt fi WHERE fi.fid = ?) f JOIN (SELECT * FROM DBP167.benutzer) b ON (b.bid = f.anbieter))) t");
+            stmt_generalInf.setInt(1, fahrt_id);
 
-            ResultSet query = stmt.executeQuery();
+            ResultSet query_generalInf = stmt_generalInf.executeQuery();
             String startort = "startort";
             String zielort = "zielort";
-            Date fahrtdatumzeit = Date.valueOf("2000-01-01");
+            String fahrtdatumzeit = "0000-00-00 OO:OO";
             int maxplaetze = 0;
             String status = "invalid";
             String anbieter = "invalid";
-            String beschreibung = "values for fahrt "+String.valueOf(fahrt_id)+" could not be loaded.";
-            if(query.next()) {
-                startort = query.getString("startort");
-                zielort = query.getString("zielort");
-                fahrtdatumzeit = query.getDate("fahrtdatumzeit");
-                maxplaetze = query.getInt("maxplaetze");
-                status = query.getString("status");
-                anbieter = query.getString("anbieter");
-                beschreibung = query.getString("beschreibung");
+            String beschreibung = "values for fahrt "+fahrt_id+" could not be loaded.";
+            if(query_generalInf.next()) {
+                startort = query_generalInf.getString("startort");
+                zielort = query_generalInf.getString("zielort");
+                fahrtdatumzeit = query_generalInf.getDate("fahrtdatumzeit").toString()+" "+query_generalInf.getTime("fahrtdatumzeit").toString();
+                maxplaetze = query_generalInf.getInt("maxplaetze");
+                status = query_generalInf.getString("status");
+                anbieter = query_generalInf.getString("anbieter");
+                beschreibung = query_generalInf.getString("beschreibung");
+                if(beschreibung == null){beschreibung="";}
             }
-            query.close();
-            stmt.close();
-            sql = "SELECT t.summ FROM (SELECT SUM(r.anzplaetze) AS summ, r.FAHRT FROM DBP167.RESERVIEREN r GROUP BY r.FAHRT) t WHERE t.FAHRT = ?";
-            stmt = connection.prepareStatement(sql);
-            stmt.setInt(1, fahrt_id);
-            query = stmt.executeQuery();
+            query_generalInf.close();
+            stmt_generalInf.close();
+            PreparedStatement stmt_plaetzeFrei = connection.prepareStatement("SELECT t.summ FROM (SELECT SUM(r.anzplaetze) AS summ, r.FAHRT FROM DBP167.RESERVIEREN r GROUP BY r.FAHRT) t WHERE t.FAHRT = ?");
+            stmt_plaetzeFrei.setInt(1, fahrt_id);
+            ResultSet query_plaetzeFrei = stmt_plaetzeFrei.executeQuery();
             int belegtPlaetze = 0;
-            if(query.next()){
-                belegtPlaetze = query.getInt("summ");
+            if(query_plaetzeFrei.next()){
+                belegtPlaetze = query_plaetzeFrei.getInt("summ");
             }
-            query.close();
-            stmt.close();
+            query_plaetzeFrei.close();
+            stmt_plaetzeFrei.close();
             // get ratings
-            sql = "SELECT b.EMAIL AS email, r.TEXTNACHRICHT AS textnachricht, r.RATING AS rating FROM (SELECT * FROM DBP167.BENUTZER) b JOIN (SELECT * FROM DBP167.BEWERTUNG) r ON (b.BID = r.BEID)";
-            stmt = connection.prepareStatement(sql);
+            //Fahrt_bewertungen
+            PreparedStatement stmt_ratings = connection.prepareStatement("SELECT b.EMAIL AS email, r.TEXTNACHRICHT AS textnachricht, r.RATING AS rating FROM (SELECT * FROM DBP167.BENUTZER) b JOIN (SELECT * FROM DBP167.BEWERTUNG) r ON (b.BID = r.BEID)");
             StringBuilder ratings_tabledata = new StringBuilder();
             double avg_rating = 0;
-            query = stmt.executeQuery();
+            ResultSet query_ratings = stmt_ratings.executeQuery();
             int i =0;
-            while (query.next()){
-                String textnachricht = query.getString("textnachricht");
-                int rating = query.getInt("rating");
-                String email = query.getString("email");
+            while (query_ratings.next()){
+                String textnachricht = query_ratings.getString("textnachricht");
+                int rating = query_ratings.getInt("rating");
+                String email = query_ratings.getString("email");
                 ratings_tabledata.append("<tr><th>").append(email).append("</th><th>").append(textnachricht).append("</th><th>").append(rating).append("</th></tr>");
                 avg_rating += rating;
                 i++;
             }
-            query.close();
-            stmt.close();
+            query_ratings.close();
+            stmt_ratings.close();
+            //get if this Kunde has already reserved this Fahrt:
+            String sqlAlreadyReserved = "SELECT * FROM DBP167.RESERVIEREN WHERE (KUNDE = ? and FAHRT = ?)";
+            PreparedStatement stmt_alreadyRes = connection.prepareStatement(sqlAlreadyReserved);
+            stmt_alreadyRes.setInt(1, kunden_id);
+            stmt_alreadyRes.setInt(2, fahrt_id);
+            ResultSet query_alreadyRes = stmt_alreadyRes.executeQuery();
+            String aktion_ftl =
+                    "\t\t\t\t<label>\n" +
+                    "\t\t\t\t\tAnzahl Plaetze fuer Reservierung: <input type=\"number\" id=\"resplaetze\" name=\"resplaetze\" min=\"1\" max=\"2\">\n" +
+                    "\t\t\t\t</label> <br>\n" +
+                    "\t\t\t\t<input type=\"submit\" value=\"pla(e)tz(e) reservieren\">\n";
+            if(query_alreadyRes.next()){
+                aktion_ftl = "you already reserved "+query_alreadyRes.getInt("anzplaetze")+" seats in this drive";
+            }
+            query_alreadyRes.close();
+            stmt_alreadyRes.close();
             connection.close();
             //do complicated math to calculate the data to show from the data.
             avg_rating = avg_rating/i;
@@ -108,6 +116,8 @@ public final class ViewDriveServlet extends HttpServlet {
             request.setAttribute("ratings_tabledata", ratings_tabledata.toString());
             request.setAttribute("kunden_id", kunden_id);
             request.setAttribute("fahrt_id", fahrt_id);
+            request.setAttribute("aktion_res", aktion_ftl);
+
         }catch (Exception e){
             e.printStackTrace();
         }

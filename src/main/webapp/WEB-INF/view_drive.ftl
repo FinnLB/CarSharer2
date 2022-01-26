@@ -3,9 +3,6 @@
 	<title>CarSharer</title>
 	<link rel="stylesheet" href="/res?template.css">
 	<link rel="stylesheet" href="/res?view_drive.css">
-	<script>
-		document.getElementById("data").innerHTML = "Paragraph changed.";
-	</script>
 </head>
 
 <body>
@@ -33,17 +30,17 @@
 
 		<div id = "subheader"><h1>Aktionsleiste</h1></div>
 		<div id="data">
-			<form method="post" action="view_drive">
-				<label>
-					<input type="hidden", name = "fahrt_id", value = ${fahrt_id}>
-					<input type="hidden", name = "kunden_id", value = ${kunden_id}>
-					Anzahl Plaetze fuer Reservierung: <input type="number" id="resplaetze" name="resplaetze" min="1" max="2">
-				</label> <br>
-				<input type="submit" value="pla(e)tz(e) reservieren">
+			<form method="post" action="view_drive?kunden_id=${kunden_id}&fahrt_id=${fahrt_id}">
+				<input type="hidden" name="kunden_id" value="${kunden_id}">
+				<input type="hidden" name="fahrt_id" value="${fahrt_id}">
+				${aktion_res}
 			</form>
 		</div>
 
-		<div id = "subheader"><h1>Bewertungen</h1>  Durchschnittsrating: ${averageRating}</div>
+		<div id = "subheader"><h1>Bewertungen</h1>
+			Durchschnittsrating: ${averageRating}<br>
+			<a href="new_rating?fid=${fahrt_id}">BEWERTEN</a>
+		</div>
 		<div id="data">
 			<p>
 				<table>
@@ -53,7 +50,6 @@
 					<th>rating</th>
 				</tr>
 				${ratings_tabledata}
-				<!-- insert date from TODO here, in as many rows as needed -->
 				</table>
 			</p>
 		</div>

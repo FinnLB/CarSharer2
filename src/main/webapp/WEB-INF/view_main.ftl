@@ -5,14 +5,29 @@
 
 <body>
 	<div id="wrapper">
+		<input type="hidden", name="kunden_id", value="${kunden_id}">
 		<div id="header">
 		<h1>CarSharer Website</h1>
 		</div>
-	   
+
+		<div id="subheader">
+			<h1>Aktionen</h1>
+		</div>
 		<div id="site">
-			<a href="new_drive">Neue Fahrt</a>
-			<a href="new_drive">Fahrt anzeigen</a>
-			<a href="view_search">Suche anzeigen</a>
+			<form method="get" action="new_drive"><input type="submit" value="Neue Fahrt"></form><br>
+			<form method="get" action="view_search"><input type="submit" value="Suche anzeigen"></form>
+		</div>
+		<div id="subheader">
+			<h1>Meine Reservierten Fahrten</h1>
+		</div>
+		<div id="reservierte_fahrten">
+			${res_list}
+		</div>
+		<div id="subheader">
+			<h1>Offene Fahrten</h1>
+		</div>
+		<div id="offene_fahrten">
+			${open_list}
 		</div>
 	</div>
 </body>
