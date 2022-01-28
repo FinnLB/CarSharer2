@@ -30,7 +30,7 @@ public final class ViewSearchServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String raw_query = request.getQueryString();
-        if (raw_query == null){
+        if ((raw_query == null) || raw_query.equals("")){
             request.setAttribute("query", "");
             request.setAttribute("results", "");
             request.setAttribute("from", "");
