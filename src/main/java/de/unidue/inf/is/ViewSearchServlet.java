@@ -33,10 +33,16 @@ public final class ViewSearchServlet extends HttpServlet {
         if (raw_query == null){
             request.setAttribute("query", "");
             request.setAttribute("results", "");
+            request.setAttribute("from", "");
+            request.setAttribute("to", "");
+            request.setAttribute("date", "");
         }else {
             String start = request.getParameter("from").toLowerCase();
             String destination = request.getParameter("to").toLowerCase();
             Date date = Date.valueOf(request.getParameter("date"));
+            request.setAttribute("from", start);
+            request.setAttribute("to", destination);
+            request.setAttribute("date", request.getParameter("date"));
             request.setAttribute("query", start + " >> " + destination + " am " + sdf_s.format(date));
             StringBuilder result = new StringBuilder();
 
@@ -62,7 +68,7 @@ public final class ViewSearchServlet extends HttpServlet {
                     String anbieter = query.getString("anbieter");
                     String transportmittel = query.getString("transportmittel");
 
-                    result.append("<div><table><tr><td>");
+                    result.append("<div><table style=\"min-width: 40%\"><tr><td>");
                     result.append("Fahrer:");
                     result.append("</td><td>");
                     result.append(anbieter);
@@ -86,11 +92,13 @@ public final class ViewSearchServlet extends HttpServlet {
                     result.append("Status:");
                     result.append("</td><td>");
                     result.append(status);
-                    result.append("</td></tr><tr><td>");
-                    result.append("<button onclick=\"watch(1,");
+                    result.append("</td></tr><tr><td><form action=\"view_drive\" method=\"get\">");
+                    result.append("<input type=\"hidden\" name=\"kunden_id\"value=\"1\">");
+                    result.append("<input type=\"hidden\" name=\"kunden_id\"value=\"");
                     result.append(id);
-                    result.append(")\">Buchen</button>");
-                    result.append("</td></tr><tr><td></table></div>");
+                    result.append("\">");
+                    result.append("<input style=\"width: 200%\" type=\"submit\" value=\"Buchen\">");
+                    result.append("</td></tr></table></div>");
                 }
             } catch (SQLException throwable) {
                 throwable.printStackTrace();
