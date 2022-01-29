@@ -10,26 +10,29 @@
 		<div id="header">
 		<h1>CarSharer Search</h1>
 		</div>
+		<form method="get" action="view_main"><input type="submit" value="Go to main"></form><br>
 	   
 		<div id="site">
 			<div id="search">
-				<table>
-					<tr>
-						<td><label>Von:</label></td>
-						<td><input type="text" id="from"></td>
-					</tr>
-					<tr>
-						<td><label>Nach:</label></td>
-						<td><input type="text" id="to"></td>
-					</tr>
-					<tr>
-						<td><label>Fahrtdatum:</label></td>
-						<td><input type="date" id="date"></td>
-					</tr>
-					<tr>
-						<td><button onclick="run_search()" style="width: 100%">Search</button></td>
-					</tr>
-				</table>
+				<form action="view_search" method="get">
+					<table style="min-width: 40%">
+						<tr>
+							<td><label>Von:</label></td>
+							<td><input type="text" name="from" value="${from}"></td>
+						</tr>
+						<tr>
+							<td><label>Nach:</label></td>
+							<td><input type="text" name="to" value="${to}"></td>
+						</tr>
+						<tr>
+							<td><label>Fahrtdatum:</label></td>
+							<td><input type="date" name="date" value="${date}"></td>
+						</tr>
+						<tr>
+							<td><input type="submit" style="width: 200%" value="Suchen"></td>
+						</tr>
+					</table>
+				</form>
 				<br>
 			</div>
 			<div id="results">
@@ -40,18 +43,5 @@
 			</div>
 		</div>
 	</div>
-<script>
-	var from = document.getElementById("from")
-	var to = document.getElementById("to")
-	var date = document.getElementById("date")
-
-	function run_search(){
-		location.href = location.protocol + "//" + location.hostname + ":" + location.port + "/view_search?from=" + from.value + "&to=" + to.value + "&date=" + date.value; // redirect to link
-	}
-
-	function watch(k_id, f_id){
-		location.href = location.protocol + "//" + location.hostname + ":" + location.port + "/view_drive?kunden_id=" + parseInt(k_id, 10) +"&fahrt_id=" + parseInt(f_id, 10);
-	}
-</script>
 </body>
 </html>
