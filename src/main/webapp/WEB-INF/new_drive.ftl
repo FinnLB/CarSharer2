@@ -10,7 +10,11 @@
 		</div>
 	   
 		<div id="site">
-			<form method="get" action="view_main"><input type="submit" value="Go to main"></form><br>
+			<!-- Zur Hauptseite Button -->
+			<form method="get" action="view_main">
+				<input type="hidden" value="${kunden_id}" name="kunden_id">
+				<input type="submit" value="Zur Hauptseite">
+			</form><br>
 		<form method="post" action="new_drive">
 			<input type="hidden" value="${kunden_id}" name="kunden_id">
 			<label>

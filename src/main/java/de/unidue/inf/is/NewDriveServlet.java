@@ -23,7 +23,7 @@ public final class NewDriveServlet extends HttpServlet {
         } catch (Exception e) {
             e.printStackTrace();
             request.setAttribute("error", "Can't parse parameter kunden_id.");
-            request.getRequestDispatcher("error").forward(request, response);
+            request.getRequestDispatcher("error.ftl").forward(request, response);
         }
 
         try {

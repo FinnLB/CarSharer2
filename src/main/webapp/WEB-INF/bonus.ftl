@@ -10,10 +10,19 @@
     </div>
 
     <div id="site">
-        Fahrer: ${driver}<br>
-        Durchschnittsrating: ${average_rating}<br>
-        <#list drives as drive>
+        <!--  -->
+        <form action="view_main" method="get">
+            <input type="submit" value="Zur Hauptseite">
+        </form><br>
 
+        Fahrer: ${driver}<br>
+        Durchschnittsrating: ${average_rating}<br><hr>
+        <#list drives as drive>
+            <div class="drive">
+                Fahrt-Id: ${drive.fid}<br>
+                Von: ${drive.startort}<br>
+                Nach: ${drive.zielort}
+            </div>
         </#list>
     </div>
 </div>
