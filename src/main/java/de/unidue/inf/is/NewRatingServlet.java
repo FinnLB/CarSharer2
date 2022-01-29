@@ -55,12 +55,17 @@ public final class NewRatingServlet extends HttpServlet {
 
         try {
             Connection con = DBUtil.getExternalConnection();
-            PreparedStatement stmt1 = con.prepareStatement("INSERT INTO BEWERTUNG (TEXTNACHRICHT, RATING) VALUES (?, ?);SELECT IDENTITY_VAL_LOCAL() AS VAL FROM SYSIBM.SYSDUMMY1");
+            PreparedStatement stmt1 = con.prepareStatement("INSERT INTO BEWERTUNG (TEXTNACHRICHT, RATING) VALUES (?, ?)");
 
             stmt1.setString(1, msg);
             stmt1.setInt(2, rating);
 
-            int beid = stmt1.executeUpdate();
+            stmt1.executeUpdate();
+
+            PreparedStatement stmt1r = con.prepareStatement("SELECT IDENTITY_VAL_LOCAL() AS VAL FROM SYSIBM.SYSDUMMY1");
+            ResultSet result = stmt1r.executeQuery();
+            result.next();
+            int beid = result.getInt(1);
 
             PreparedStatement stmt2 = con.prepareStatement("INSERT INTO SCHREIBEN (BENUTZER, FAHRT, BEWERTUNG) VALUES (?, ?, ?)");
 
