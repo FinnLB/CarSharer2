@@ -68,7 +68,7 @@ public final class ViewDriveServlet extends HttpServlet {
             stmt_plaetzeFrei.close();
             // get ratings
             //Fahrt_bewertungen
-            PreparedStatement stmt_ratings = connection.prepareStatement("SELECT b.EMAIL AS email, r.TEXTNACHRICHT AS textnachricht, r.RATING AS rating FROM (SELECT * FROM DBP167.BENUTZER) b JOIN (SELECT * FROM DBP167.BEWERTUNG) r ON (b.BID = r.BEID)");
+            PreparedStatement stmt_ratings = connection.prepareStatement("SELECT b.EMAIL AS email, r.TEXTNACHRICHT AS textnachricht, r.RATING AS rating FROM FAHRT_BEWERTUNG r JOIN BENUTZER b ON b.BID = r.BENUTZER");
             StringBuilder ratings_tabledata = new StringBuilder();
             double avg_rating = 0;
             ResultSet query_ratings = stmt_ratings.executeQuery();
