@@ -16,7 +16,7 @@ import java.util.Calendar;
 import java.util.Locale;
 
 public final class ViewSearchServlet extends HttpServlet {
-
+    //TODO show icon for found drives
     static SimpleDateFormat sdf = new SimpleDateFormat("HH:mm dd/MM/yyyy");
     static SimpleDateFormat sdf_s = new SimpleDateFormat("dd/MM/yyyy");
     static DateTimeFormatter sdf_html = DateTimeFormatter.ofPattern("yyyy-MM-dd");
@@ -60,15 +60,13 @@ public final class ViewSearchServlet extends HttpServlet {
 
         try {
             Connection con = DBUtil.getExternalConnection();
-            PreparedStatement stmt = con.prepareStatement("SELECT * FROM SEARCH WHERE STARTORT = ? AND ZIELORT = ? AND FAHRTDATUMZEIT >= ? AND FAHRTDATUMZEIT <= ?");
+            PreparedStatement stmt = con.prepareStatement("SELECT * FROM SEARCH WHERE STARTORT LIKE ? AND ZIELORT LIKE ? AND FAHRTDATUMZEIT >= ?");
 
-            stmt.setString(1, start);
-            stmt.setString(2, destination);
+            stmt.setString(1, "%" + start + "%");
+            stmt.setString(2, "%" + destination + "%");
 
             Date von = date;
-            String bis = addDays(von, 1);
             stmt.setString(3, sql_date.format(von));
-            stmt.setString(4, bis);
 
             ResultSet query = stmt.executeQuery();
             while (query.next()) {
@@ -78,6 +76,7 @@ public final class ViewSearchServlet extends HttpServlet {
                 Date fahrtdatumzeit = query.getDate("fahrtdatumzeit");
                 String status = query.getString("status");
                 String anbieter = query.getString("anbieter");
+                String kosten = query.getString("fahrtkosten");
                 String transportmittel = query.getString("transportmittel");
 
                 result.append("<div><table style=\"min-width: 40%\"><tr><td>");
@@ -96,6 +95,10 @@ public final class ViewSearchServlet extends HttpServlet {
                 result.append("Nach:");
                 result.append("</td><td>");
                 result.append(zielort);
+                result.append("</td></tr><tr><td>");
+                result.append("Kosten:");
+                result.append("</td><td>");
+                result.append(kosten);
                 result.append("</td></tr><tr><td>");
                 result.append("Start Zeit:");
                 result.append("</td><td>");

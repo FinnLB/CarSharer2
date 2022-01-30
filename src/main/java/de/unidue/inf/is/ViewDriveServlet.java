@@ -13,10 +13,12 @@ import java.util.LinkedList;
 public final class ViewDriveServlet extends HttpServlet {
 //TODO kosten anzeign
 //TODO icon transportmittel, email ersteller
-// TODO fahrt löschen
-    //TODO reserviern-button reload
-    //TODO ersteller nicht reservieren
-    //TODO nicht mehr plätze reservieren als frei
+//TODO fahrt löschen (nur ersteller): Fahrt und bewertungen und reservierungen löschen, auf hauptseite weiterleiten
+//TODO reserviern-button reload site
+//TODO ersteller nicht reservieren
+//TODO nicht mehr plätze reservieren als frei
+//TODO bewertungen nach erstelldatum sortieren (neuste nach oben)
+
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         //TODO request should contain fahrt_id and kunden_id

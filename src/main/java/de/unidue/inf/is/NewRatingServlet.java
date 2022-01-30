@@ -11,7 +11,8 @@ import java.io.IOException;
 import java.sql.*;
 
 public final class NewRatingServlet extends HttpServlet {
-
+//TODO textarea statt textfeld
+    //TODO textnachricht darf nicht leer sein
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         int fid = Integer.parseInt(request.getParameter("fid"), 10);
