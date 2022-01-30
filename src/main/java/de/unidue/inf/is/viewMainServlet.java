@@ -27,7 +27,10 @@ public final class viewMainServlet extends HttpServlet {
         try {
             Connection connection = DBUtil.getExternalConnection();
             // reservierte fahrten anzeigen
-            PreparedStatement stmt_res = connection.prepareStatement("SELECT f.STARTORT, f.ZIELORT, f.STATUS, r.ANZPLAETZE, f.FID FROM (SELECT * FROM DBP167.RESERVIEREN WHERE KUNDE = ?) r JOIN (SELECT * FROM DBP167.FAHRT) f ON r.FAHRT = f.FID");
+            PreparedStatement stmt_res = connection.prepareStatement(
+                    "SELECT a.STARTORT, a.ZIELORT, a.STATUS, a.ANZPLAETZE, a.FID, b.ICON FROM (" +
+                    "SELECT f.STARTORT, f.ZIELORT, f.STATUS, r.ANZPLAETZE, f.FID, f.TRANSPORTMITTEL FROM (SELECT * FROM RESERVIEREN WHERE KUNDE = ?) r JOIN (SELECT * FROM FAHRT) f ON r.FAHRT = f.FID" +
+                    ") a JOIN TRANSPORTMITTEL b ON a.TRANSPORTMITTEL = b.TID");
             stmt_res.setInt(1, kunden_id);
             ResultSet qerry_res = stmt_res.executeQuery();
             StringBuilder res_list = new StringBuilder("");
@@ -36,10 +39,12 @@ public final class viewMainServlet extends HttpServlet {
                 String von = qerry_res.getString("Startort");
                 String nach = qerry_res.getString("Zielort");
                 String status = qerry_res.getString("status");
+                String icon = qerry_res.getString("ICON");
                 int fahrt_id = qerry_res.getInt("FID");
                 int anzplaetze = qerry_res.getInt("anzPlaetze");
                 res_list.append("<div class=\"border\"><a href=\"view_drive?kunden_id=").append(kunden_id)
-                        .append("&fahrt_id=").append(fahrt_id).append("\">show details</a> <br> von:").append(von)
+                        .append("&fahrt_id=").append(fahrt_id).append("\"><img src=\"/res?").append(icon)
+                        .append("\"></a> <br> von:").append(von)
                         .append("<br> nach:").append(nach).append("<br> status: ").append(status)
                         .append("<br> reserviert: ").append(anzplaetze).append("</div>");
             }
@@ -48,7 +53,7 @@ public final class viewMainServlet extends HttpServlet {
             request.setAttribute("res_list", res_list.toString());
 
             // offene fahrten anzeigen
-            PreparedStatement stmt_open = connection.prepareStatement("SELECT * FROM DBP167.FAHRT WHERE STATUS=?");
+            PreparedStatement stmt_open = connection.prepareStatement("SELECT * FROM FAHRT f JOIN TRANSPORTMITTEL t ON f.TRANSPORTMITTEL = t.TID WHERE STATUS=?");
             stmt_open.setString(1, "offen");
             ResultSet querry_open = stmt_open.executeQuery();
             StringBuilder open_list = new StringBuilder("");
@@ -59,6 +64,7 @@ public final class viewMainServlet extends HttpServlet {
                 int fahrt_id = querry_open.getInt("FID");
                 int kosten = querry_open.getBigDecimal("Fahrtkosten").intValue();
                 int maxPlaetze = querry_open.getInt("maxplaetze");
+                String icon = querry_open.getString("ICON");
                 //get belegte plaetze
                 PreparedStatement stmt_plaetzeFrei = connection.prepareStatement("SELECT t.summ FROM (SELECT SUM(r.anzplaetze) AS summ, r.FAHRT FROM DBP167.RESERVIEREN r GROUP BY r.FAHRT) t WHERE t.FAHRT = ?");
                 stmt_plaetzeFrei.setInt(1, fahrt_id);
@@ -71,7 +77,8 @@ public final class viewMainServlet extends HttpServlet {
                 stmt_plaetzeFrei.close();
                 //
                 open_list.append("<div class=\"border\"><a href=\"view_drive?kunden_id=").append(kunden_id)
-                        .append("&fahrt_id=").append(fahrt_id).append("\">show details</a> <br> von:").append(von)
+                        .append("&fahrt_id=").append(fahrt_id).append("\"><img src=\"/res?").append(icon)
+                        .append("\"></a> <br> von:").append(von)
                         .append("<br> nach:").append(nach).append("<br> status: ").append(status)
                         .append("<br> kosten: ").append(kosten).append("€ <br> Plaetze: ").append(maxPlaetze-belegtPlaetze)
                         .append(" von ").append(maxPlaetze).append(" sind frei")
