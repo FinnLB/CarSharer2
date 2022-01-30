@@ -12,6 +12,7 @@ public class Drive {
     String status;
     int anbieter;
     int transportmittel;
+    String icon;
 
     public Drive(int fid, String startort, String zielort, Timestamp fahrtDatumZeit, int maxPlaetze, int fahrtkosten,
                  String status, int anbieter, int transportmittel) {
@@ -60,5 +61,13 @@ public class Drive {
 
     public int getTransportmittel() {
         return transportmittel;
+    }
+
+    public String getIcon() {
+        return icon;
+    }
+
+    public void setIcon(String icon) {
+        this.icon = icon;
     }
 }
