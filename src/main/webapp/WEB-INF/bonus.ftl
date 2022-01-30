@@ -10,7 +10,7 @@
     </div>
 
     <div id="site">
-        <!--  -->
+        <!-- Zur Hauptseite Button -->
         <form action="view_main" method="get">
             <input type="submit" value="Zur Hauptseite">
         </form><br>
