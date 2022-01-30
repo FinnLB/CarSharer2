@@ -11,21 +11,13 @@ import java.sql.*;
 import java.util.LinkedList;
 
 public final class ViewDriveServlet extends HttpServlet {
-//TODO kosten anzeign
-//TODO icon transportmittel, email ersteller
-//TODO fahrt löschen (nur ersteller): Fahrt und bewertungen und reservierungen löschen, auf hauptseite weiterleiten
-//TODO reserviern-button reload site
-//TODO ersteller nicht reservieren
-//TODO nicht mehr plätze reservieren als frei
-//TODO bewertungen nach erstelldatum sortieren (neuste nach oben)
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        //TODO request should contain fahrt_id and kunden_id
         String sid = request.getParameter("fahrt_id");
-        String kid = request.getParameter("kunden_id");//TODO diese Loesung koennte Sicherheitsluecken enthalten.
+        String kid = request.getParameter("kunden_id");//diese Loesung koennte Sicherheitsluecken enthalten.
         int fahrt_id = 4;
-        int kunden_id = 1;
+        int kunden_id = 1;  // dieser defaultwert könnte für den kunden nr 1 probleme haben.
         try{
             fahrt_id = Integer.parseInt(sid);
         }catch (Exception e){
@@ -41,7 +33,7 @@ public final class ViewDriveServlet extends HttpServlet {
             connection = DBUtil.getExternalConnection();
             // get general information
             PreparedStatement stmt_generalInf = connection.prepareStatement(
-                    "SELECT t.name AS anbieter, t.fid, t.startort, t.zielort, t.fahrtdatumzeit, t.maxplaetze, t.status, t.beschreibung FROM (SELECT * FROM ((SELECT * FROM DBP167.fahrt fi WHERE fi.fid = ?) f JOIN (SELECT * FROM DBP167.benutzer) b ON (b.bid = f.anbieter))) t");
+                    "SELECT t.name AS anbieter, t.email, t.BID, t.fid, t.startort, t.zielort, t.fahrtdatumzeit, t.maxplaetze, t.status, t.beschreibung, t.FAHRTKOSTEN, trans.NAME, trans.ICON FROM (SELECT * FROM ((SELECT * FROM DBP167.fahrt fi WHERE fi.fid = ?) f JOIN (SELECT * FROM DBP167.benutzer) b ON (b.bid = f.anbieter))) t JOIN DBP167.TRANSPORTMITTEL trans ON t.TRANSPORTMITTEL = trans.TID");
             stmt_generalInf.setInt(1, fahrt_id);
 
             ResultSet query_generalInf = stmt_generalInf.executeQuery();
@@ -51,7 +43,12 @@ public final class ViewDriveServlet extends HttpServlet {
             int maxplaetze = 0;
             String status = "invalid";
             String anbieter = "invalid";
+            int anbieter_id = -1;
+            String anbieter_email = "invalid@undefined.NaN";
             String beschreibung = "values for fahrt "+fahrt_id+" could not be loaded.";
+            String kosten = "invalid";
+            String transportmittel = "invalid";
+            String transportmittel_icon_path = "pfad/icons/invalid.png";
             if(query_generalInf.next()) {
                 startort = query_generalInf.getString("startort");
                 zielort = query_generalInf.getString("zielort");
@@ -61,6 +58,12 @@ public final class ViewDriveServlet extends HttpServlet {
                 anbieter = query_generalInf.getString("anbieter");
                 beschreibung = query_generalInf.getString("beschreibung");
                 if(beschreibung == null){beschreibung="";}
+                kosten = String.valueOf(query_generalInf.getInt("Fahrtkosten"));
+                anbieter_email = query_generalInf.getString("email");
+                transportmittel = query_generalInf.getString("name");
+                transportmittel_icon_path = "res?"+query_generalInf.getString("Icon");
+                anbieter_id = query_generalInf.getInt("BID");
+
             }
             query_generalInf.close();
             stmt_generalInf.close();
@@ -73,9 +76,10 @@ public final class ViewDriveServlet extends HttpServlet {
             }
             query_plaetzeFrei.close();
             stmt_plaetzeFrei.close();
+
             // get ratings
             //Fahrt_bewertungen
-            PreparedStatement stmt_ratings = connection.prepareStatement("SELECT ben.EMAIL, bew_sch.TEXTNACHRICHT, bew_sch.RATING FROM ((SELECT sch.BENUTZER, sch.FAHRT, bew.TEXTNACHRICHT, bew.RATING FROM (DBP167.BEWERTUNG bew JOIN DBP167.SCHREIBEN sch on bew.BEID = sch.BEWERTUNG)) bew_sch JOIN DBP167.BENUTZER ben ON ben.BID = bew_sch.BENUTZER) WHERE FAHRT = ?");
+            PreparedStatement stmt_ratings = connection.prepareStatement("SELECT ben.EMAIL, bew_sch.TEXTNACHRICHT, bew_sch.RATING FROM ((SELECT sch.BENUTZER, sch.FAHRT, bew.TEXTNACHRICHT, bew.RATING, bew.ERSTELLUNGSDATUM FROM (DBP167.BEWERTUNG bew JOIN DBP167.SCHREIBEN sch on bew.BEID = sch.BEWERTUNG)) bew_sch JOIN DBP167.BENUTZER ben ON ben.BID = bew_sch.BENUTZER) WHERE FAHRT = ? ORDER BY bew_sch.ERSTELLUNGSDATUM");
             stmt_ratings.setInt(1, fahrt_id);
             ResultSet query_ratings = stmt_ratings.executeQuery();
 
@@ -92,22 +96,37 @@ public final class ViewDriveServlet extends HttpServlet {
             }
             query_ratings.close();
             stmt_ratings.close();
-            //get if this Kunde has already reserved this Fahrt:
-            String sqlAlreadyReserved = "SELECT * FROM DBP167.RESERVIEREN WHERE (KUNDE = ? and FAHRT = ?)";
-            PreparedStatement stmt_alreadyRes = connection.prepareStatement(sqlAlreadyReserved);
-            stmt_alreadyRes.setInt(1, kunden_id);
-            stmt_alreadyRes.setInt(2, fahrt_id);
-            ResultSet query_alreadyRes = stmt_alreadyRes.executeQuery();
-            String aktion_ftl =
-                    "\t\t\t\t<label>\n" +
-                    "\t\t\t\t\tAnzahl Plaetze fuer Reservierung: <input type=\"number\" id=\"resplaetze\" name=\"resplaetze\" min=\"1\" max=\"2\">\n" +
-                    "\t\t\t\t</label> <br>\n" +
-                    "\t\t\t\t<input type=\"submit\" value=\"pla(e)tz(e) reservieren\">\n";
-            if(query_alreadyRes.next()){
-                aktion_ftl = "you already reserved "+query_alreadyRes.getInt("anzplaetze")+" seats in this drive";
+
+            //aktionsleiste
+            String delete_drive = "";
+            String aktion_ftl = "";
+            if(anbieter_id == kunden_id){
+                //currently loged in kunde is owner of this drive
+                delete_drive = "<input type=\"submit\" value=\"Diese Fahrt Loeschen. (diese Aktion kann nicht rueckgaengig gemacht werden)\">";
+                aktion_ftl = "Du kannst keine eigene Fahrt resevieren.";
+            }else{
+                //get if this Kunde has already reserved this Fahrt:
+                String sqlAlreadyReserved = "SELECT * FROM DBP167.RESERVIEREN WHERE (KUNDE = ? and FAHRT = ?)";
+                PreparedStatement stmt_alreadyRes = connection.prepareStatement(sqlAlreadyReserved);
+                stmt_alreadyRes.setInt(1, kunden_id);
+                stmt_alreadyRes.setInt(2, fahrt_id);
+                ResultSet query_alreadyRes = stmt_alreadyRes.executeQuery();
+
+                if(query_alreadyRes.next()){
+                    aktion_ftl = "you already reserved "+query_alreadyRes.getInt("anzplaetze")+" seats in this drive";
+                }else{
+                    //make action to reserve seats possible
+                    aktion_ftl =
+                            "<label>" +
+                                    "Anzahl Plaetze fuer Reservierung: <input type=\"number\" id=\"resplaetze\" name=\"resplaetze\" min=\"1\" max=\""+Math.min(maxplaetze-belegtPlaetze, 2)+"\">" +
+                                    "</label> <br>" +
+                                    "<input type=\"submit\" value=\"pla(e)tz(e) reservieren\">";
+                }
+
+                query_alreadyRes.close();
+                stmt_alreadyRes.close();
             }
-            query_alreadyRes.close();
-            stmt_alreadyRes.close();
+
             connection.close();
             //do complicated math to calculate the data to show from the data.
             avg_rating = avg_rating/i;
@@ -126,6 +145,11 @@ public final class ViewDriveServlet extends HttpServlet {
             request.setAttribute("kunden_id", kunden_id);
             request.setAttribute("fahrt_id", fahrt_id);
             request.setAttribute("aktion_res", aktion_ftl);
+            request.setAttribute("kosten", kosten);
+            request.setAttribute("anbieter_email", anbieter_email);
+            request.setAttribute("transportmittel", transportmittel);
+            request.setAttribute("transportmittel_icon_path", transportmittel_icon_path);
+            request.setAttribute("delete_drive", delete_drive);
 
         }catch (Exception e){
             e.printStackTrace();
@@ -136,21 +160,79 @@ public final class ViewDriveServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        int resplaetze = Integer.parseInt(request.getParameter("resplaetze"));
-        int kunden_id = Integer.parseInt(request.getParameter("kunden_id"));
-        int fahrt_id = Integer.parseInt(request.getParameter("fahrt_id"));
-        System.out.println("ViewDriveServlet.doPost: resplaetze = "+resplaetze+", kid = "+kunden_id+", fid = "+ fahrt_id);
-        try {
-            Connection connection = DBUtil.getExternalConnection();
-            PreparedStatement stmt = connection.prepareStatement("INSERT INTO DBP167.RESERVIEREN (KUNDE, FAHRT, ANZPLAETZE) VALUES (?, ?, ?)");
-            stmt.setInt(1, kunden_id);
-            stmt.setInt(2, fahrt_id);
-            stmt.setInt(3, resplaetze);
-            stmt.executeUpdate();
-            stmt.close();
-            connection.close();
-        } catch (SQLException throwables) {
-            throwables.printStackTrace();
+        String type = request.getParameter("type");
+        if ("reserve".equals(type)) {
+            int resplaetze = Integer.parseInt(request.getParameter("resplaetze"));
+            int kunden_id = Integer.parseInt(request.getParameter("kunden_id"));
+            int fahrt_id = Integer.parseInt(request.getParameter("fahrt_id"));
+            System.out.println("ViewDriveServlet.doPost: reserve resplaetze = " + resplaetze + ", kid = " + kunden_id + ", fid = " + fahrt_id);
+            try {
+                Connection connection = DBUtil.getExternalConnection();
+                PreparedStatement stmt = connection.prepareStatement("INSERT INTO DBP167.RESERVIEREN (KUNDE, FAHRT, ANZPLAETZE) VALUES (?, ?, ?)");
+                stmt.setInt(1, kunden_id);
+                stmt.setInt(2, fahrt_id);
+                stmt.setInt(3, resplaetze);
+                stmt.executeUpdate();
+                stmt.close();
+                connection.close();
+            } catch (SQLException throwables) {
+                throwables.printStackTrace();
+            }
+            response.sendRedirect("view_drive?kunden_id=" + kunden_id + "&fahrt_id=" + fahrt_id);
+        }else{
+            //type == delete
+            int kunden_id = Integer.parseInt(request.getParameter("kunden_id"));
+            int fahrt_id = Integer.parseInt(request.getParameter("fahrt_id"));
+            System.out.println("ViewDriveServlet.doPost: delete, kid = " + kunden_id + ", fid = " + fahrt_id);
+            //delete drive including references
+            /*
+            SELECT s.BEWERTUNG FROM SCHREIBEN s WHERE FAHRT=84;
+            DELETE FROM SCHREIBEN WHERE FAHRT=84;
+            DELETE FROM BEWERTUNG b WHERE b.BEID = 83;
+            DELETE FROM RESERVIEREN WHERE FAHRT=84;
+            DELETE FROM FAHRT WHERE FID=84;
+             */
+
+            try {
+                Connection con = DBUtil.getExternalConnection();
+                PreparedStatement getBEID = con.prepareStatement("SELECT s.BEWERTUNG AS BEID FROM SCHREIBEN s WHERE FAHRT=?");
+                getBEID.setInt(1, fahrt_id);
+                ResultSet getBEID_res = getBEID.executeQuery();
+                LinkedList<Integer> beids = new LinkedList<Integer>();
+                while (getBEID_res.next()){
+                    beids.add(getBEID_res.getInt("BEID"));
+                }
+                getBEID_res.close();
+                getBEID.close();
+
+                PreparedStatement dels = con.prepareStatement("DELETE FROM SCHREIBEN WHERE FAHRT=?");
+                dels.setInt(1, fahrt_id);
+                dels.executeUpdate();
+                dels.close();
+
+                for (Integer beid : beids) {
+                    PreparedStatement delb = con.prepareStatement("DELETE FROM BEWERTUNG b WHERE b.BEID = ?");
+                    delb.setInt(1, beid);
+                    delb.executeUpdate();
+                    delb.close();
+                }
+
+
+                PreparedStatement delr = con.prepareStatement("DELETE FROM RESERVIEREN WHERE FAHRT=?");
+                delr.setInt(1, fahrt_id);
+                delr.executeUpdate();
+                delr.close();
+
+                PreparedStatement delf = con.prepareStatement("DELETE FROM FAHRT WHERE FID=?");
+                delf.setInt(1, fahrt_id);
+                delf.executeUpdate();
+                delf.close();
+                con.close();
+            } catch (SQLException throwables) {
+                throwables.printStackTrace();
+            }
+            //auf hauptseite weiterleiten
+            response.sendRedirect("view_main?kunden_id=" + kunden_id);
         }
     }
 

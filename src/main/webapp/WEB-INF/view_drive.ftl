@@ -19,11 +19,14 @@
 		<p>
 			<ul>
 				<li>Anbieter: ${anbieter}</li>
+				<li>email: ${anbieter_email}</li>
 				<li>Fahrtdatum und -uhrzeit: ${datetime}</li>
 				<li>Von: ${start}</li>
 				<li>Nach: ${ziel}</li>
 				<li>Anzahl freier Plätze: ${nfreiePlaetze}</li>
 				<li>Status: ${status}</li>
+				<li>Transportmittel: ${transportmittel} <br> <img src="${transportmittel_icon_path}" alt="image of an ${transportmittel}"></li>
+				<li>kosten: ${kosten}</li>
 				<li>Beschreibung: ${description}</li>
 			</ul>
 		</p>
@@ -32,10 +35,19 @@
 		<div id = "subheader"><h1>Aktionsleiste</h1></div>
 		<div id="data">
 			<form method="post" action="view_drive?kunden_id=${kunden_id}&fahrt_id=${fahrt_id}">
+				<input type="hidden", name="type", value="reserve">
 				<input type="hidden" name="kunden_id" value="${kunden_id}">
 				<input type="hidden" name="fahrt_id" value="${fahrt_id}">
 				${aktion_res}
+
 			</form>
+			<form method="post" action="view_drive?kunden_id=${kunden_id}&fahrt_id=${fahrt_id}">
+				<input type="hidden", name="type", value="delete">
+				<input type="hidden" name="kunden_id" value="${kunden_id}">
+				<input type="hidden" name="fahrt_id" value="${fahrt_id}">
+				${delete_drive}
+			</form>
+
 		</div>
 
 		<div id = "subheader"><h1>Bewertungen</h1>
