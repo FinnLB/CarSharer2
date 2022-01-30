@@ -19,6 +19,7 @@
         Durchschnittsrating: ${average_rating}<br><hr>
         <#list drives as drive>
             <div class="drive">
+                <img src="/res?${drive.icon}"><br>
                 Fahrt-Id: ${drive.fid}<br>
                 Von: ${drive.startort}<br>
                 Nach: ${drive.zielort}

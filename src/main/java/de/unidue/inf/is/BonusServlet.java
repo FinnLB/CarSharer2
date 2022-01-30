@@ -38,14 +38,14 @@ public class BonusServlet extends HttpServlet {
             request.setAttribute("average_rating", resultSet.getString("AVG_RATING"));
 
             PreparedStatement stmt = connection.prepareStatement(
-                    "SELECT * FROM FAHRT WHERE ANBIETER = ? AND STATUS = 'offen'"
+                    "SELECT * FROM FAHRT F JOIN TRANSPORTMITTEL T on F.TRANSPORTMITTEL = T.TID WHERE ANBIETER = ? AND STATUS = 'offen'"
             );
             stmt.setInt(1, resultSet.getInt("ANBIETER"));
             statement.close();
             ResultSet openDrivesRS = stmt.executeQuery();
             List<Drive> drives = new ArrayList<>();
             while(openDrivesRS.next()) {
-                drives.add(new Drive(
+                Drive drive = new Drive(
                         openDrivesRS.getInt("FID"),
                         openDrivesRS.getString("STARTORT"),
                         openDrivesRS.getString("ZIELORT"),
@@ -55,8 +55,9 @@ public class BonusServlet extends HttpServlet {
                         openDrivesRS.getString("STATUS"),
                         openDrivesRS.getInt("ANBIETER"),
                         openDrivesRS.getInt("TRANSPORTMITTEL")
-                        )
                 );
+                drive.setIcon(openDrivesRS.getString("ICON"));
+                drives.add(drive);
             }
             request.setAttribute("drives", drives);
             stmt.close();
