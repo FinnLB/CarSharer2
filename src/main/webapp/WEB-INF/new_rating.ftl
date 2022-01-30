@@ -17,7 +17,9 @@
 				<table>
 					<tr>
 						<td><label>Textnachricht:</label></td>
-						<td><input type="text" name="msg"></td>
+						<td>
+							<textarea name="msg" maxlength="50" minlength="1" required></textarea>
+						</td>
 					</tr>
 					<tr>
 						<td><label>Bewertung:</label></td>
