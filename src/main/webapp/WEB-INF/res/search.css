@@ -8,3 +8,11 @@
 input {
     padding-left: 1%;
 }
+
+img{
+    height: 64px;
+    width: 64px;
+    -o-object-fit: cover;
+    object-fit: cover;
+    display: block;
+}

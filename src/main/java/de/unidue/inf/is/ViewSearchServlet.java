@@ -16,7 +16,6 @@ import java.util.Calendar;
 import java.util.Locale;
 
 public final class ViewSearchServlet extends HttpServlet {
-    //TODO show icon for found drives
     static SimpleDateFormat sdf = new SimpleDateFormat("HH:mm dd/MM/yyyy");
     static SimpleDateFormat sdf_s = new SimpleDateFormat("dd/MM/yyyy");
     static DateTimeFormatter sdf_html = DateTimeFormatter.ofPattern("yyyy-MM-dd");
@@ -78,6 +77,7 @@ public final class ViewSearchServlet extends HttpServlet {
                 String anbieter = query.getString("anbieter");
                 String kosten = query.getString("fahrtkosten");
                 String transportmittel = query.getString("transportmittel");
+                String icon = "/res?" + query.getString("icon");
 
                 result.append("<div><table style=\"min-width: 40%\"><tr><td>");
                 result.append("Fahrer:");
@@ -87,6 +87,9 @@ public final class ViewSearchServlet extends HttpServlet {
                 result.append("Fahrzeug:");
                 result.append("</td><td>");
                 result.append(transportmittel);
+                result.append("<image src=\"");
+                result.append(icon);
+                result.append("\">");
                 result.append("</td></tr><tr><td>");
                 result.append("Von:");
                 result.append("</td><td>");
