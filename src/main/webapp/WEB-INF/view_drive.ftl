@@ -17,6 +17,7 @@
 	   
 		<div id="data">
 		<p>
+			<img src="${transportmittel_icon_path}" alt="image of an ${transportmittel}">
 			<ul>
 				<li>Anbieter: ${anbieter}</li>
 				<li>email: ${anbieter_email}</li>
@@ -25,7 +26,7 @@
 				<li>Nach: ${ziel}</li>
 				<li>Anzahl freier Plätze: ${nfreiePlaetze}</li>
 				<li>Status: ${status}</li>
-				<li>Transportmittel: ${transportmittel} <br> <img src="${transportmittel_icon_path}" alt="image of an ${transportmittel}"></li>
+				<li>Transportmittel: ${transportmittel}</li>
 				<li>kosten: ${kosten}</li>
 				<li>Beschreibung: ${description}</li>
 			</ul>
