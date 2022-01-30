@@ -14,7 +14,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 public final class NewDriveServlet extends HttpServlet {
-
+//TODO fehler abfangen
+    //TODO weiterleiten
+    //TODO max plaetze größer 10
+    //TODO kosten negativ
+    //TODO datum in vergangenheit
+    //TODO beschreibüng > 50 => fehler
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         int kundenId = -1;

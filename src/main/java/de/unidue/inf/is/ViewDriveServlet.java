@@ -11,7 +11,12 @@ import java.sql.*;
 import java.util.LinkedList;
 
 public final class ViewDriveServlet extends HttpServlet {
-
+//TODO kosten anzeign
+//TODO icon transportmittel, email ersteller
+// TODO fahrt löschen
+    //TODO reserviern-button reload
+    //TODO ersteller nicht reservieren
+    //TODO nicht mehr plätze reservieren als frei
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         //TODO request should contain fahrt_id and kunden_id
@@ -68,10 +73,12 @@ public final class ViewDriveServlet extends HttpServlet {
             stmt_plaetzeFrei.close();
             // get ratings
             //Fahrt_bewertungen
-            PreparedStatement stmt_ratings = connection.prepareStatement("SELECT b.EMAIL AS email, r.TEXTNACHRICHT AS textnachricht, r.RATING AS rating FROM FAHRT_BEWERTUNG r JOIN BENUTZER b ON b.BID = r.BENUTZER");
+            PreparedStatement stmt_ratings = connection.prepareStatement("SELECT ben.EMAIL, bew_sch.TEXTNACHRICHT, bew_sch.RATING FROM ((SELECT sch.BENUTZER, sch.FAHRT, bew.TEXTNACHRICHT, bew.RATING FROM (DBP167.BEWERTUNG bew JOIN DBP167.SCHREIBEN sch on bew.BEID = sch.BEWERTUNG)) bew_sch JOIN DBP167.BENUTZER ben ON ben.BID = bew_sch.BENUTZER) WHERE FAHRT = ?");
+            stmt_ratings.setInt(1, fahrt_id);
+            ResultSet query_ratings = stmt_ratings.executeQuery();
+
             StringBuilder ratings_tabledata = new StringBuilder();
             double avg_rating = 0;
-            ResultSet query_ratings = stmt_ratings.executeQuery();
             int i =0;
             while (query_ratings.next()){
                 String textnachricht = query_ratings.getString("textnachricht");

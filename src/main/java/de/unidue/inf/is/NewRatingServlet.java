@@ -54,27 +54,55 @@ public final class NewRatingServlet extends HttpServlet {
         String msg = request.getParameter("msg");
 
         try {
+
             Connection con = DBUtil.getExternalConnection();
-            PreparedStatement stmt1 = con.prepareStatement("INSERT INTO BEWERTUNG (TEXTNACHRICHT, RATING) VALUES (?, ?)");
+            PreparedStatement test = con.prepareStatement("SELECT * FROM SCHREIBEN s WHERE s.BENUTZER = ? and s.FAHRT = ?");
+            test.setInt(1, nid);
+            test.setInt(2, fid);
+            ResultSet test_res = test.executeQuery();
+            boolean rating_exist = false;
+            int update_beid = -1;
+            if(test_res.next()){
+                rating_exist = true;
+                update_beid =test_res.getInt("Bewertung");
+            }
+            test_res.close();
+            test.close();
+            if(rating_exist){
+                // user has already rated that drive -> update instead of insert.
+                PreparedStatement stmt_updatebew = con.prepareStatement("UPDATE DBP167.BEWERTUNG SET textnachricht = ?, rating = ?, erstellungsdatum = ? WHERE beid=?");
+                stmt_updatebew.setString(1, msg);
+                stmt_updatebew.setInt(2, rating);
+                java.util.Date utilDate = new java.util.Date();
+                Date now = new java.sql.Date(utilDate.getTime());
+                stmt_updatebew.setDate(3, now);
+                stmt_updatebew.setInt(4, update_beid);
+            }else {
+                // insert new row.
+                PreparedStatement stmt1 = con.prepareStatement("INSERT INTO BEWERTUNG (TEXTNACHRICHT, RATING) VALUES (?, ?)");
 
-            stmt1.setString(1, msg);
-            stmt1.setInt(2, rating);
+                stmt1.setString(1, msg);
+                stmt1.setInt(2, rating);
 
-            stmt1.executeUpdate();
+                stmt1.executeUpdate();
 
-            PreparedStatement stmt1r = con.prepareStatement("SELECT IDENTITY_VAL_LOCAL() AS VAL FROM SYSIBM.SYSDUMMY1");
-            ResultSet result = stmt1r.executeQuery();
-            result.next();
-            int beid = result.getInt(1);
+                PreparedStatement stmt1r = con.prepareStatement("SELECT IDENTITY_VAL_LOCAL() AS VAL FROM SYSIBM.SYSDUMMY1");
+                ResultSet result = stmt1r.executeQuery();
+                result.next();
+                int beid = result.getInt(1);
+                result.close();
+                stmt1.close();
 
-            PreparedStatement stmt2 = con.prepareStatement("INSERT INTO SCHREIBEN (BENUTZER, FAHRT, BEWERTUNG) VALUES (?, ?, ?)");
+                PreparedStatement stmt2 = con.prepareStatement("INSERT INTO SCHREIBEN (BENUTZER, FAHRT, BEWERTUNG) VALUES (?, ?, ?)");
 
-            stmt2.setInt(1, nid);
-            stmt2.setInt(2, fid);
-            stmt2.setInt(3, beid);
+                stmt2.setInt(1, nid);
+                stmt2.setInt(2, fid);
+                stmt2.setInt(3, beid);
 
-            stmt2.executeUpdate();
-
+                stmt2.executeUpdate();
+                stmt2.close();
+            }
+            con.close();
         } catch (SQLException throwable) {
             throwable.printStackTrace();
         }
