@@ -16,7 +16,11 @@ import java.util.Calendar;
 import java.util.Locale;
 
 public final class ViewSearchServlet extends HttpServlet {
-
+//TODO alle die mit eingabe-von beginnen anzeigen
+    //TODO show icon for found drives
+    //TODO show start und zielort for drives
+    //TODO show fahrtkosten
+    //TODO wenn leere anfrage fehlermeldung
     static SimpleDateFormat sdf = new SimpleDateFormat("HH:mm dd/MM/yyyy");
     static SimpleDateFormat sdf_s = new SimpleDateFormat("dd/MM/yyyy");
     static DateTimeFormatter sdf_html = DateTimeFormatter.ofPattern("yyyy-MM-dd");
@@ -60,15 +64,13 @@ public final class ViewSearchServlet extends HttpServlet {
 
         try {
             Connection con = DBUtil.getExternalConnection();
-            PreparedStatement stmt = con.prepareStatement("SELECT * FROM SEARCH WHERE STARTORT = ? AND ZIELORT = ? AND FAHRTDATUMZEIT >= ? AND FAHRTDATUMZEIT <= ?");
+            PreparedStatement stmt = con.prepareStatement("SELECT * FROM SEARCH WHERE STARTORT = ? AND ZIELORT = ? AND FAHRTDATUMZEIT >= ?");
 
             stmt.setString(1, start);
             stmt.setString(2, destination);
 
             Date von = date;
-            String bis = addDays(von, 1);
             stmt.setString(3, sql_date.format(von));
-            stmt.setString(4, bis);
 
             ResultSet query = stmt.executeQuery();
             while (query.next()) {
