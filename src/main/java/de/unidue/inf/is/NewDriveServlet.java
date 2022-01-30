@@ -14,12 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public final class NewDriveServlet extends HttpServlet {
-//TODO fehler abfangen
-    //TODO weiterleiten
-    //TODO max plaetze größer 10
-    //TODO kosten negativ
-    //TODO datum in vergangenheit
-    //TODO beschreibüng > 50 => fehler
+
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         int kundenId = -1;
@@ -69,25 +64,37 @@ public final class NewDriveServlet extends HttpServlet {
 
         try {
             capacity = Integer.parseInt(request.getParameter("kapazitaet"));
+            if(capacity < 0 || capacity > 10) {
+                throw new Exception("capacity not in range");
+            }
         }catch (Exception e) {
             e.printStackTrace();
-            request.setAttribute("error", "Can't parse parameter kapazitaet.");
+            request.setAttribute("error", "Can't parse parameter kapazitaet. " +
+                    "Please make sure to give it a numeric value between 0 and 10.");
             request.getRequestDispatcher("error.ftl").forward(request, response); return;
         }
         try {
             costs = Integer.parseInt(request.getParameter("kosten"));
+            if(costs < 0) {
+                throw new Exception("costs smaller zero");
+            }
         }catch (Exception e){
             e.printStackTrace();
-            request.setAttribute("error", "Can't parse parameter kosten.");
+            request.setAttribute("error", "Can't parse parameter kosten. " +
+                    "Please make sure to give it a positive integer value.");
             request.getRequestDispatcher("error.ftl").forward(request, response); return;
         }
 
         Timestamp fahrtdatum;
         try {
             fahrtdatum = Timestamp.valueOf(request.getParameter("fahrtdatumzeit").replace("T", " ") + ":00");
+            if(fahrtdatum.before(Timestamp.from(Instant.now()))) {
+                throw new Exception("fahrtdatum in past");
+            }
         } catch (Exception e) {
             e.printStackTrace();
-            request.setAttribute("error", "Can't parse parameter fahrtdatumzeit.");
+            request.setAttribute("error", "Can't parse parameter fahrtdatumzeit." +
+                    "Please make sure to give it a timestamp in the future.");
             request.getRequestDispatcher("error.ftl").forward(request, response); return;
         }
         System.out.println(new Timestamp(fahrtdatum.getTime()));
@@ -103,11 +110,14 @@ public final class NewDriveServlet extends HttpServlet {
         String beschreibung = "";
         try {
             beschreibung = request.getParameter("beschreibung");
+            if(beschreibung.length() > 50) {
+                throw new Exception("beschreibung too long");
+            }
         } catch (Exception e) {
             e.printStackTrace();
-            request.setAttribute("error", "Can't parse parameter beschreibung.");
-            request.getRequestDispatcher("error.ftl").forward(request, response);
-            return;
+            request.setAttribute("error", "Can't parse parameter beschreibung." +
+                    "Please make sure beschreibung has less then 51 characters");
+            request.getRequestDispatcher("error.ftl").forward(request, response); return;
         }
 
         try {

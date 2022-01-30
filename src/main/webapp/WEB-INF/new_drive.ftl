@@ -27,11 +27,11 @@
 			</label><br>
 			<label>
 				Maximale Kapazität:
-				<input type="number" name="kapazitaet">
+				<input type="number" name="kapazitaet" min="0" max="10" required>
 			</label><br>
 			<label>
 				Fahrtkosten:
-				<input type="text" name="kosten">
+				<input type="number" name="kosten" min="0" required>
 			</label><br>
 			Transportmittel:
 			<#list vehicles as vehicle>
@@ -43,15 +43,19 @@
 			<br>
 			<label>
 				Fahrtdatum:
-				<input type="datetime-local" name="fahrtdatumzeit">
+				<input type="datetime-local" name="fahrtdatumzeit" id="fahrtdatum" required>
 			</label><br>
 			<label>
 				Beschreibung:
-				<textarea name="beschreibung"></textarea>
+				<textarea name="beschreibung" maxlength="50"></textarea>
 			</label><br>
 			<input type="submit" value="Fahrt erstellen">
 		</form>
 		</div>
 	</div>
+<script>
+	console.log(new Date().toISOString().split(".")[0].substring(0, 16));
+	document.getElementById("fahrtdatum").min = new Date().toISOString().split(".")[0].substring(0, 16);
+</script>
 </body>
 </html>
