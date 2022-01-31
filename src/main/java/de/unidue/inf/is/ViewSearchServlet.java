@@ -69,7 +69,7 @@ public final class ViewSearchServlet extends HttpServlet {
 
         try {
             Connection con = DBUtil.getExternalConnection();
-            PreparedStatement stmt = con.prepareStatement("SELECT * FROM SEARCH WHERE STARTORT LIKE ? AND ZIELORT LIKE ? AND FAHRTDATUMZEIT >= ?");
+            PreparedStatement stmt = con.prepareStatement("SELECT * FROM SEARCH WHERE STARTORT LIKE ? AND ZIELORT LIKE ? AND FAHRTDATUMZEIT >= ? ORDER BY FAHRTDATUMZEIT");
 
             stmt.setString(1, "%" + start + "%");
             stmt.setString(2, "%" + destination + "%");
