@@ -64,7 +64,7 @@ public final class NewDriveServlet extends HttpServlet {
         String ziel = request.getParameter("bis");
 
         try {
-            capacity = Integer.parseInt(request.getParameter("kapazitaet"));
+            capacity = Integer.parseInt(request.getParameter("kapazitaet").split("\\.")[0]);  // für html ist z.B. die eingabe 5.0 gültig, für parseInt nicht.
             if(capacity < 0 || capacity > 10) {
                 throw new Exception("capacity not in range");
             }
@@ -75,7 +75,7 @@ public final class NewDriveServlet extends HttpServlet {
             request.getRequestDispatcher("error.ftl").forward(request, response); return;
         }
         try {
-            costs = Integer.parseInt(request.getParameter("kosten"));
+            costs = Integer.parseInt(request.getParameter("kosten").split("\\.")[0]);  // für html ist z.B. die eingabe 5.0 gültig, für parseInt nicht.
             if(costs < 0) {
                 throw new Exception("costs smaller zero");
             }

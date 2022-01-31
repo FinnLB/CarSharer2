@@ -31,7 +31,7 @@
 			</label><br>
 			<label>
 				Fahrtkosten:
-				<input type="number" name="kosten" min="0" required>
+				<input type="number" name="kosten" min="0" max="99999999" required> <!-- maximaler ganzahl-wert von Decimal(10,2) = 10**(10-2)-1 = 99999999 -->
 			</label><br>
 			Transportmittel:
 			<#list vehicles as vehicle>

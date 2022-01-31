@@ -12,6 +12,19 @@ import java.util.LinkedList;
 
 public final class ViewDriveServlet extends HttpServlet {
 
+    public static int getNbelegtPlaetze(int fahrt_id, Connection con) throws SQLException {
+        PreparedStatement stmt_plaetzeFrei = con.prepareStatement("SELECT t.summ FROM (SELECT SUM(r.anzplaetze) AS summ, r.FAHRT FROM DBP167.RESERVIEREN r GROUP BY r.FAHRT) t WHERE t.FAHRT = ?");
+        stmt_plaetzeFrei.setInt(1, fahrt_id);
+        ResultSet query_plaetzeFrei = stmt_plaetzeFrei.executeQuery();
+        int belegtPlaetze = 0;
+        if(query_plaetzeFrei.next()){
+            belegtPlaetze = query_plaetzeFrei.getInt("summ");
+        }
+        query_plaetzeFrei.close();
+        stmt_plaetzeFrei.close();
+        return belegtPlaetze;
+    }
+
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String sid = request.getParameter("fahrt_id");
@@ -68,15 +81,7 @@ public final class ViewDriveServlet extends HttpServlet {
             query_generalInf.close();
             stmt_generalInf.close();
 
-            PreparedStatement stmt_plaetzeFrei = connection.prepareStatement("SELECT t.summ FROM (SELECT SUM(r.anzplaetze) AS summ, r.FAHRT FROM DBP167.RESERVIEREN r GROUP BY r.FAHRT) t WHERE t.FAHRT = ?");
-            stmt_plaetzeFrei.setInt(1, fahrt_id);
-            ResultSet query_plaetzeFrei = stmt_plaetzeFrei.executeQuery();
-            int belegtPlaetze = 0;
-            if(query_plaetzeFrei.next()){
-                belegtPlaetze = query_plaetzeFrei.getInt("summ");
-            }
-            query_plaetzeFrei.close();
-            stmt_plaetzeFrei.close();
+            int belegtPlaetze = getNbelegtPlaetze(fahrt_id, connection);
 
             // get ratings
             //Fahrt_bewertungen
@@ -174,6 +179,30 @@ public final class ViewDriveServlet extends HttpServlet {
                 stmt.setInt(3, resplaetze);
                 stmt.executeUpdate();
                 stmt.close();
+
+
+                //check if closed.
+                int belegtPlaetze = getNbelegtPlaetze(fahrt_id, connection);
+                int maxPlaetze = -1;
+                String status = "invalid";
+                PreparedStatement stmt_mp = connection.prepareStatement("SELECT f.maxplaetze, f.status FROM DBP167.Fahrt f WHERE f.fid = ?");
+                stmt_mp.setInt(1, fahrt_id);
+                ResultSet res_mp = stmt_mp.executeQuery();
+                if(res_mp.next()){
+                    maxPlaetze = res_mp.getInt("maxplaetze");
+                    status = res_mp.getString("status");
+                }
+                res_mp.close();
+                stmt_mp.close();
+
+                if(maxPlaetze <= belegtPlaetze && !"geschlossen".equals(status)){
+                    System.out.println("fahrt "+fahrt_id+" shoud be closed, but its "+status);
+                    PreparedStatement update = connection.prepareStatement("UPDATE DBP167.Fahrt SET status = ? WHERE fid = ?");
+                    update.setString(1, "geschlossen");
+                    update.setInt(2, fahrt_id);
+                    update.executeUpdate();
+                    update.close();
+                }
                 connection.close();
             } catch (SQLException throwables) {
                 throwables.printStackTrace();
