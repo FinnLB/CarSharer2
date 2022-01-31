@@ -127,7 +127,7 @@ public final class ViewSearchServlet extends HttpServlet {
                 result.append("<input type=\"hidden\" name=\"fahrt_id\"value=\"");
                 result.append(id);
                 result.append("\">");
-                result.append("<input style=\"width: 200%\" type=\"submit\" value=\"Buchen\">");
+                result.append("<input style=\"width: 200%\" type=\"submit\" value=\"Buchen\"></form>");
                 result.append("</td></tr></table></div>");
             }
             query.close();

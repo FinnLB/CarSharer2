@@ -31,7 +31,7 @@
 				<li>Anzahl freier Plätze: ${nfreiePlaetze}</li>
 				<li>Status: ${status}</li>
 				<li>Transportmittel: ${transportmittel}</li>
-				<li>kosten: ${kosten}</li>
+				<li>kosten: ${kosten} EUR</li>
 				<li>Beschreibung: ${description}</li>
 			</ul>
 		</p>
@@ -64,7 +64,7 @@
 				<table>
 				<tr>
 					<th>email</th>
-					<th>beschreibung</th>
+					<th>textnachricht</th>
 					<th>rating</th>
 				</tr>
 				${ratings_tabledata}

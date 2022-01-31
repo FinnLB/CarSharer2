@@ -53,6 +53,7 @@ public final class viewMainServlet extends HttpServlet {
             request.setAttribute("res_list", res_list.toString());
 
             // offene fahrten anzeigen
+            // das beinhaltet vom nutzer reservierte Fahrten, die noch offen sind, und das ist (glaub ich) so richtig?
             PreparedStatement stmt_open = connection.prepareStatement("SELECT * FROM FAHRT f JOIN TRANSPORTMITTEL t ON f.TRANSPORTMITTEL = t.TID WHERE STATUS=?");
             stmt_open.setString(1, "offen");
             ResultSet querry_open = stmt_open.executeQuery();

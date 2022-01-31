@@ -85,7 +85,7 @@ public final class ViewDriveServlet extends HttpServlet {
 
             // get ratings
             //Fahrt_bewertungen
-            PreparedStatement stmt_ratings = connection.prepareStatement("SELECT ben.EMAIL, bew_sch.TEXTNACHRICHT, bew_sch.RATING FROM ((SELECT sch.BENUTZER, sch.FAHRT, bew.TEXTNACHRICHT, bew.RATING, bew.ERSTELLUNGSDATUM FROM (DBP167.BEWERTUNG bew JOIN DBP167.SCHREIBEN sch on bew.BEID = sch.BEWERTUNG)) bew_sch JOIN DBP167.BENUTZER ben ON ben.BID = bew_sch.BENUTZER) WHERE FAHRT = ? ORDER BY bew_sch.ERSTELLUNGSDATUM");
+            PreparedStatement stmt_ratings = connection.prepareStatement("SELECT ben.EMAIL, bew_sch.TEXTNACHRICHT, bew_sch.RATING FROM ((SELECT sch.BENUTZER, sch.FAHRT, bew.TEXTNACHRICHT, bew.RATING, bew.ERSTELLUNGSDATUM FROM (DBP167.BEWERTUNG bew JOIN DBP167.SCHREIBEN sch on bew.BEID = sch.BEWERTUNG)) bew_sch JOIN DBP167.BENUTZER ben ON ben.BID = bew_sch.BENUTZER) WHERE FAHRT = ? ORDER BY bew_sch.ERSTELLUNGSDATUM DESC");
             stmt_ratings.setInt(1, fahrt_id);
             ResultSet query_ratings = stmt_ratings.executeQuery();
 
@@ -157,6 +157,8 @@ public final class ViewDriveServlet extends HttpServlet {
             request.setAttribute("delete_drive", delete_drive);
 
         }catch (Exception e){
+            request.setAttribute("error", "SQL/Database error in ViewDriveServlet.doGet");
+            request.getRequestDispatcher("error.ftl").forward(request, response);
             e.printStackTrace();
         }
 
@@ -196,6 +198,7 @@ public final class ViewDriveServlet extends HttpServlet {
                 stmt_mp.close();
 
                 if(maxPlaetze <= belegtPlaetze && !"geschlossen".equals(status)){
+                    //should be impossible to reach.
                     System.out.println("fahrt "+fahrt_id+" shoud be closed, but its "+status);
                     PreparedStatement update = connection.prepareStatement("UPDATE DBP167.Fahrt SET status = ? WHERE fid = ?");
                     update.setString(1, "geschlossen");
@@ -205,6 +208,8 @@ public final class ViewDriveServlet extends HttpServlet {
                 }
                 connection.close();
             } catch (SQLException throwables) {
+                request.setAttribute("error", "SQL/Database error in ViewDriveServlet.doPost reservieren");
+                request.getRequestDispatcher("error.ftl").forward(request, response);
                 throwables.printStackTrace();
             }
             response.sendRedirect("view_drive?kunden_id=" + kunden_id + "&fahrt_id=" + fahrt_id);
@@ -260,6 +265,8 @@ public final class ViewDriveServlet extends HttpServlet {
                     con.commit(); // execute transaction
                     con.close();
                 } catch (SQLException throwables) {
+                    request.setAttribute("error", "SQL/Database error in ViewDriveServlet.doGet: delte");
+                    request.getRequestDispatcher("error.ftl").forward(request, response);
                     throwables.printStackTrace();
                 }
                 //auf hauptseite weiterleiten
