@@ -38,6 +38,7 @@ public final class NewDriveServlet extends HttpServlet {
                         resultSet.getString("ICON")
                 ));
             }
+            resultSet.close();
             statement.close();
             connection.close();
             request.setAttribute("vehicles", vehicles);
@@ -142,6 +143,7 @@ public final class NewDriveServlet extends HttpServlet {
             ResultSet resultSet = stmt.getGeneratedKeys();
             resultSet.next();
             fahrtId = resultSet.getInt("FID");
+            resultSet.close();
             stmt.close();
             connection.close();
             response.sendRedirect("view_drive?kunden_id=" + kundenId + "&fahrt_id=" + fahrtId);

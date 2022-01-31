@@ -13,7 +13,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public final class viewMainServlet extends HttpServlet {
-//TODO icon clickable link to show_drive
+
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String kid = request.getParameter("kunden_id");

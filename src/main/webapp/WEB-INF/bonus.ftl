@@ -11,7 +11,8 @@
 
     <div id="site">
         <!-- Zur Hauptseite Button -->
-        <form action="view_main" method="get">
+        <form method="get" action="view_main">
+            <input type="hidden" value="${kunden_id}" name="kunden_id">
             <input type="submit" value="Zur Hauptseite">
         </form><br>
 

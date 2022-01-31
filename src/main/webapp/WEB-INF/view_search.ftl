@@ -10,11 +10,14 @@
 		<div id="header">
 		<h1>CarSharer Search</h1>
 		</div>
-		<form method="get" action="view_main"><input type="submit" value="Go to main"></form><br>
+		<form method="get" action="view_main"><input type="submit" value="Go to main">
+			<input type="hidden", name="kunden_id", value="${kunden_id}">
+		</form><br>
 	   
 		<div id="site">
 			<div id="search">
 				<form action="view_search" method="get">
+					<input type="hidden", name="kunden_id", value="${kunden_id}">
 					<table style="min-width: 40%">
 						<tr>
 							<td><label>Von:</label></td>

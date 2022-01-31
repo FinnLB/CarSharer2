@@ -10,7 +10,11 @@
 		<div id="header">
 			<h1>Fahrt ansehen</h1>
 		</div>
-		<form method="get" action="view_main"><input type="submit" value="Go to main"></form><br>
+		<!-- Zur Hauptseite Button -->
+		<form method="get" action="view_main">
+			<input type="hidden" value="${kunden_id}" name="kunden_id">
+			<input type="submit" value="Zur Hauptseite">
+		</form><br>
 		<div id="subheader">
 		<h1> Informationen </h1>
 		</div>
@@ -53,7 +57,7 @@
 
 		<div id = "subheader"><h1>Bewertungen</h1>
 			Durchschnittsrating: ${averageRating}<br>
-			<a href="new_rating?fid=${fahrt_id}">BEWERTEN</a>
+			<a href="new_rating?fid=${fahrt_id}&nid=${kunden_id}">BEWERTEN</a>
 		</div>
 		<div id="data">
 			<p>

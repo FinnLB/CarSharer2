@@ -33,6 +33,14 @@ public final class ViewSearchServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
+        int nid = 1;
+        try{
+            nid = Integer.parseInt(request.getParameter("kunden_id"));
+        }catch (Exception e){
+            System.out.println("ViewDirveServlet: cant parse kunden_id "+request.getParameter("kunden_id")+" to int");
+        }
+        request.setAttribute("kunden_id", nid);
+
         String start = request.getParameter("from");
         String destination = request.getParameter("to");
         if ((start == null) || (destination == null)){ // empty Search -> skip search
@@ -44,6 +52,8 @@ public final class ViewSearchServlet extends HttpServlet {
             request.getRequestDispatcher("view_search.ftl").forward(request, response);
             return;
         }
+        start = start.toLowerCase();
+        destination = destination.toLowerCase();
         String raw_date = request.getParameter("date");
         if ((start == null)) {
             raw_date = sdf_html.format(LocalDateTime.now());
@@ -111,13 +121,18 @@ public final class ViewSearchServlet extends HttpServlet {
                 result.append("</td><td>");
                 result.append(status);
                 result.append("</td></tr><tr><td><form action=\"view_drive\" method=\"get\">");
-                result.append("<input type=\"hidden\" name=\"kunden_id\"value=\"1\">");
                 result.append("<input type=\"hidden\" name=\"kunden_id\"value=\"");
+                result.append(nid);
+                result.append("\">");
+                result.append("<input type=\"hidden\" name=\"fahrt_id\"value=\"");
                 result.append(id);
                 result.append("\">");
                 result.append("<input style=\"width: 200%\" type=\"submit\" value=\"Buchen\">");
                 result.append("</td></tr></table></div>");
             }
+            query.close();
+            stmt.close();
+            con.close();
         } catch (SQLException throwable) {
             throwable.printStackTrace();
         }

@@ -23,21 +23,24 @@ public final class NewRatingServlet extends HttpServlet {
         request.setAttribute("nid", nid);
         try {
             Connection con = DBUtil.getExternalConnection();
-            PreparedStatement stmt = con.prepareStatement("SELECT * FROM dbp167.SEARCH WHERE FID = ?");
+            PreparedStatement stmt = con.prepareStatement("SELECT ANBIETER FROM dbp167.SEARCH WHERE FID = ?");
 
             stmt.setInt(1, fid);
 
             ResultSet query = stmt.executeQuery();
             while (query.next()) {
-                int id = query.getInt("fid");
-                String startort = query.getString("startort");
-                String zielort = query.getString("zielort");
-                Date fahrtdatumzeit = query.getDate("fahrtdatumzeit");
-                String status = query.getString("status");
+                //int id = query.getInt("fid");
+                //String startort = query.getString("startort");
+                //String zielort = query.getString("zielort");
+                //Date fahrtdatumzeit = query.getDate("fahrtdatumzeit");
+                //String status = query.getString("status");
                 String anbieter = query.getString("anbieter");
-                String transportmittel = query.getString("transportmittel");
+                //String transportmittel = query.getString("transportmittel");
                 request.setAttribute("fahrer", anbieter);
             }
+            query.close();
+            stmt.close();
+            con.close();
         } catch (SQLException throwable) {
             throwable.printStackTrace();
         }
@@ -69,13 +72,12 @@ public final class NewRatingServlet extends HttpServlet {
             test.close();
             if(rating_exist){
                 // user has already rated that drive -> update instead of insert.
-                PreparedStatement stmt_updatebew = con.prepareStatement("UPDATE DBP167.BEWERTUNG SET textnachricht = ?, rating = ?, erstellungsdatum = ? WHERE beid=?");
+                PreparedStatement stmt_updatebew = con.prepareStatement("UPDATE DBP167.BEWERTUNG SET textnachricht = ?, rating = ? WHERE beid=?");
                 stmt_updatebew.setString(1, msg);
                 stmt_updatebew.setInt(2, rating);
-                java.util.Date utilDate = new java.util.Date();
-                Date now = new java.sql.Date(utilDate.getTime());
-                stmt_updatebew.setDate(3, now);
-                stmt_updatebew.setInt(4, update_beid);
+                stmt_updatebew.setInt(3, update_beid);
+                stmt_updatebew.executeUpdate();
+                stmt_updatebew.close();
             }else {
                 // insert new row.
                 PreparedStatement stmt1 = con.prepareStatement("INSERT INTO BEWERTUNG (TEXTNACHRICHT, RATING) VALUES (?, ?)");

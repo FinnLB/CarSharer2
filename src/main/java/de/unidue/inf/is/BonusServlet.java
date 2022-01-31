@@ -19,6 +19,13 @@ public class BonusServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        int nid = 1;
+        try{
+            nid = Integer.parseInt(request.getParameter("kunden_id"));
+        }catch (Exception e){
+            System.out.println("ViewDirveServlet: cant parse kunden_id "+request.getParameter("kunden_id")+" to int");
+        }
+        request.setAttribute("kunden_id", nid);
         try {
             Connection connection = DBUtil.getExternalConnection();
             Statement statement = connection.createStatement();
@@ -32,7 +39,7 @@ public class BonusServlet extends HttpServlet {
                         ") GROUP BY f2.ANBIETER ORDER BY AVG_RATING DESC FETCH FIRST ROW ONLY) a " +
                         "JOIN BENUTZER b2 ON b2.BID = a.ANBIETER)");
 
-            if(!resultSet.next()) return;
+            if(!resultSet.next()) {resultSet.close();return;}
 
             request.setAttribute("driver", resultSet.getString("EMAIL"));
             request.setAttribute("average_rating", resultSet.getString("AVG_RATING"));
@@ -41,6 +48,7 @@ public class BonusServlet extends HttpServlet {
                     "SELECT * FROM FAHRT F JOIN TRANSPORTMITTEL T on F.TRANSPORTMITTEL = T.TID WHERE ANBIETER = ? AND STATUS = 'offen'"
             );
             stmt.setInt(1, resultSet.getInt("ANBIETER"));
+            resultSet.close();
             statement.close();
             ResultSet openDrivesRS = stmt.executeQuery();
             List<Drive> drives = new ArrayList<>();
